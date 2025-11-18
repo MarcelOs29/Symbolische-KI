@@ -3,8 +3,8 @@ from typing import Dict, List, Optional
 from pydantic import BaseModel, Field
 
 class Z3Problem(BaseModel):
-    """
-    A class representing a Z3 problem with variables, constraints, and optional types.
+    """ 
+    A class representing a Z3 problem with variables, constraints, and optional types. 
     """
     variables: List[str] = Field(
         ..., 

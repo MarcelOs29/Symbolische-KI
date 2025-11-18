@@ -3,10 +3,9 @@ from typing import Optional
 from Z3Problem import Z3Problem
 from z3 import And, Or, Not, Implies, If, Distinct, Xor
 from z3 import Int, Bool, Real
-from z3 import BitVec, LShR, RotateLeft, RotateRight
 from z3 import sat, Solver
 
-
+# Restrict the eval environment to allowed symbols only
 ALLOWED_SYMBOLS = {
     "and": And,
     "or": Or,
@@ -15,14 +14,8 @@ ALLOWED_SYMBOLS = {
     "implies": Implies,
     "if": If,
     "distinct": Distinct,
-    "bitvec": BitVec,
     "true": True,
     "false": False,
-    "rotateleft": RotateLeft,
-    "rotate_left": RotateLeft,
-    "rotateright": RotateRight,
-    "rotate_right": RotateRight,
-    "lshr": LShR,
 }
 
 DEFAULT_BITVEC_WIDTH = 32
@@ -37,8 +30,13 @@ class Z3Solver:
     def __init__(self, z3_problem: Z3Problem):
         self.z3_problem = z3_problem
 
-    @staticmethod
-    def _make_var(name: str, type_hint: Optional[str]):
+    def make_var(self, name: str, type_hint: Optional[str]):
+        """
+        Creates a Z3 variable based on the provided name and optional type hint.
+        :param name: The name of the variable.
+        :param type_hint: The optional type hint for the variable. Default is Int.
+        :return: A Z3 variable of the appropriate type.
+        """
         if type_hint:
             normalized = type_hint.strip().lower()
             if normalized == "int":
@@ -48,9 +46,7 @@ class Z3Solver:
             if normalized == "real":
                 return Real(name)
             if normalized.startswith("bitvec"):
-                digits = re.findall(r"\d+", type_hint)
-                width = int(digits[0]) if digits else DEFAULT_BITVEC_WIDTH
-                return BitVec(name, width)
+                raise ValueError("BitVec type is not supported due to LLM limitations.")
             raise ValueError(f"Unknown Z3 type for variable '{name}': {type_hint}")
         return Int(name)
 
@@ -71,7 +67,7 @@ class Z3Solver:
         try:
             type_from_llm = self.z3_problem.types or {}
             z3_vars = {
-                var: self._make_var(var, type_from_llm.get(var))
+                var: self.make_var(var, type_from_llm.get(var))
                 for var in self.z3_problem.variables
             }
             eval_env = {**z3_vars, **ALLOWED_SYMBOLS}
@@ -88,6 +84,7 @@ class Z3Solver:
                 expr = eval(const_str_eval, {"__builtins__": {}}, eval_env)
                 s.add(expr)
             
+            # The actual solving step
             check = s.check()
 
             if check == sat:

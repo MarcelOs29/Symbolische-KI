@@ -78,7 +78,8 @@ Das Architektur/Komponentendiagramm zeigt die Interaktion zwischen den Modulen u
 - Bei der Generierung der Z3-Probleme aus den natürlichen Sprachproblemen lieferten größere Modelle tendenziell bessere Ergebnisse, da sie komplexere Zusammenhänge besser erfassen können. Daher wurde für diesen Schritt das größere Modell (Qwen-1.7B) verwendet.
     - Das kleinere Modell (Qwen-0.6B) wurde jedoch auch hier getestet und lieferte in einigen Fällen ebenfalls zufriedenstellende Ergebnisse.
     - Das größere Modell (Qwen-4B) benötigt deutlich mehr Ressourcen und Zeit, lieferte jedoch keine signifikant besseren Ergebnisse im Vergleich zum 1.7B Modell.
-
+### Applikations-Hosts
+- Die Applikation unterstützt die Konfiguration mehrerer Hosts, um verschiedene LLM-Hosts zu verwenden. Dies ermöglicht es, Lastverteilung durchzuführen und so parallele Anfragen an verschiedene LLM-Instanzen zu senden. In der aktuellen Implementierung werden die Hosts in einer Liste definiert, und die Anfragen werden nacheinander an jeden Host gesendet. Sie werden jedoch parallel ausgeführt, um die Gesamtverarbeitungszeit zu reduzieren. Alle LLM-Hosts laufen lokal im selben Netzwerk und werden über die Schnittstelle von Ollama angesprochen.
 
 ## Ausblick
 - Während des testen und der Entwicklung ist aufgefallen, dass spezielle Coder-Modelle (z.B. qwen2.5-coder:3b) bessere Ergebnisse bei der Generierung der Z3-Probleme liefern könnten, da diese Modelle besser im Umgang mit formalen Sprachen und Strukturen sind und die Z3 Syntax eher einer Programmiersprache ähnelt. Daher könnten zukünftige Versionen dieses Projekts die Verwendung solcher Modelle in Betracht ziehen.
